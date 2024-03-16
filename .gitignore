@@ -1,2 +1,13 @@
-.vs/
-Release/
+/.vs
+/simpleGame/x64
+*.exe
+*.ilk
+*.pdb
+*.obj
+*.log
+*.pch
+*.idb
+*.tlog
+*.lastbuildstate
+*.suo
+*.db
