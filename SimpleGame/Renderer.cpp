@@ -18,7 +18,11 @@ void Renderer::Initialize(int windowSizeX, int windowSizeY)
 	m_WindowSizeY = windowSizeY;
 
 	//Load shaders
-	m_SolidRectShader = CompileShaders("./Shaders/SolidRect.vs", "./Shaders/SolidRect.fs");
+	m_SolidRectShader = CompileShaders("./Shaders/SolidRect.vs", 
+		"./Shaders/SolidRect.fs");
+
+	m_ParticleShader = CompileShaders("./Shaders/Particle.vs",
+		"./Shaders/Particle.fs");
 	
 	//Create VBOs
 	CreateVertexBufferObjects();
@@ -36,9 +40,7 @@ bool Renderer::IsInitialized()
 
 void Renderer::CreateVertexBufferObjects()
 {
-	float rect[] 
-		=
-	{
+	float rect[] = {
 		-1.f / m_WindowSizeX, -1.f / m_WindowSizeY, 0.f, -1.f / m_WindowSizeX, 1.f / m_WindowSizeY, 0.f, 1.f / m_WindowSizeX, 1.f / m_WindowSizeY, 0.f, //Triangle1
 		-1.f / m_WindowSizeX, -1.f / m_WindowSizeY, 0.f,  1.f / m_WindowSizeX, 1.f / m_WindowSizeY, 0.f, 1.f / m_WindowSizeX, -1.f / m_WindowSizeY, 0.f, //Triangle2
 	};
@@ -55,6 +57,19 @@ void Renderer::CreateVertexBufferObjects()
 	glGenBuffers(1, &m_TestVBO);
 	glBindBuffer(GL_ARRAY_BUFFER, m_TestVBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+	float size = 0.05;
+	float particleVerts[] = {
+	-size, -size,0.0f,
+	size,size,0.0f,
+	-size,size,0.0f,
+	-size, -size,0.0f,
+	size, -size,0.0f,
+	size,size,0.0f, };
+
+	glGenBuffers(1, &m_ParticleVBO); //갯수는 1, m_ParticleVBO
+	glBindBuffer(GL_ARRAY_BUFFER, m_ParticleVBO); //GL_ARRAY_BUFFER라는 형태로 작업,
+	glBufferData(GL_ARRAY_BUFFER, sizeof(particleVerts), particleVerts, GL_STATIC_DRAW);//sizeof() 
 
 }
 
@@ -163,7 +178,7 @@ GLuint Renderer::CompileShaders(char* filenameVS, char* filenameFS)
 	}
 
 	glUseProgram(ShaderProgram);
-	std::cout << filenameVS << ", " << filenameFS << " Shader compiling is done.";
+	std::cout << filenameVS << ", " << filenameFS << " Shader compiling is done."<<std::endl;
 
 	return ShaderProgram;
 }
@@ -208,7 +223,27 @@ void Renderer::DrawTest()
 	glBindBuffer(GL_ARRAY_BUFFER, m_TestVBO);
 	glVertexAttribPointer(attribPosition, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, 0);
 
-	glDrawArrays(GL_TRIANGLES, 0, 3);
+	glDrawArrays(GL_TRIANGLES, 0, 6);
+
+	glDisableVertexAttribArray(attribPosition);
+}
+
+void Renderer::DrawParticle()
+{
+	GLuint shader = m_ParticleShader;
+	glUseProgram(shader); //m_ParticleShader 코드의 id를 기준으로 해서 모든 쉐이더가 동작이 된다.
+
+	int ulTime = glGetUniformLocation(shader, "u_Time");
+	glUniform1f(ulTime, m_ParticleTime);
+	m_ParticleTime += 0.01;
+	if (m_ParticleTime > 200) m_ParticleTime = 0;
+
+	int attribPosition = glGetAttribLocation(shader, "a_Position");
+	glEnableVertexAttribArray(attribPosition);
+	glBindBuffer(GL_ARRAY_BUFFER, m_ParticleVBO);
+	glVertexAttribPointer(attribPosition, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, 0);
+
+	glDrawArrays(GL_TRIANGLES, 0, 6);
 
 	glDisableVertexAttribArray(attribPosition);
 }
