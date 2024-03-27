@@ -1,7 +1,9 @@
 #version 330
 
 in vec3 a_Position;
-
+in vec3 a_Velocity;
+in float a_StartTime;
+in float a_LifeTime;
 
 uniform float u_Time = 0; 
 uniform float u_Period = 1.0f;
@@ -16,6 +18,23 @@ void Basic()
 {
 	vec4 newPosition = vec4(a_Position,1);
 	gl_Position=newPosition;
+}
+
+void Velocity()
+{
+	vec4 newPosition = vec4(a_Position,1);
+	float newTime = u_Time - a_StartTime;
+
+	if(newTime >= 0){
+		newTime =a_LifeTime * fract(newTime/a_LifeTime);
+		newPosition.xy = newPosition.xy + a_Velocity.xy *newTime;
+	}
+	else{
+		newPosition.x = 1000;
+	}
+
+	gl_Position=newPosition;
+	
 }
 
 void Line()
@@ -58,9 +77,11 @@ void Parabola()
 
 void main()
 {
-	Line();
+	//Line();
 	//Circle();
 	//Parabola();
 	//Basic();
 	//Triangle() 도 만들어보기 (세개의 꼭짓점을 const로 정해주기) 시험 나옴
+
+	Velocity();
 }
