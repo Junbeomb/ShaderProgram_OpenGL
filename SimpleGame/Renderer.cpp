@@ -18,14 +18,17 @@ void Renderer::Initialize(int windowSizeX, int windowSizeY)
 	m_WindowSizeY = windowSizeY;
 
 	//Load shaders
-	m_SolidRectShader = CompileShaders("./Shaders/SolidRect.vs", 
+	m_SolidRectShader = CompileShaders("./Shaders/SolidRect.vs",
 		"./Shaders/SolidRect.fs");
 
 	m_ParticleShader = CompileShaders("./Shaders/Particle.vs",
 		"./Shaders/Particle.fs");
-	
+
 	//Create VBOs
 	CreateVertexBufferObjects();
+
+	//CreateParticleClouds
+	CreateParticlesCloud(1000);
 
 	if (m_SolidRectShader > 0 && m_VBORect > 0)
 	{
@@ -108,7 +111,7 @@ void Renderer::AddShader(GLuint ShaderProgram, const char* pShaderText, GLenum S
 	glAttachShader(ShaderProgram, ShaderObj);
 }
 
-bool Renderer::ReadFile(char* filename, std::string *target)
+bool Renderer::ReadFile(char* filename, std::string* target)
 {
 	std::ifstream file(filename);
 	if (file.fail())
@@ -178,7 +181,7 @@ GLuint Renderer::CompileShaders(char* filenameVS, char* filenameFS)
 	}
 
 	glUseProgram(ShaderProgram);
-	std::cout << filenameVS << ", " << filenameFS << " Shader compiling is done."<<std::endl;
+	std::cout << filenameVS << ", " << filenameFS << " Shader compiling is done." << std::endl;
 
 	return ShaderProgram;
 }
@@ -207,10 +210,58 @@ void Renderer::DrawSolidRect(float x, float y, float z, float size, float r, flo
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void Renderer::GetGLPosition(float x, float y, float *newX, float *newY)
+void Renderer::GetGLPosition(float x, float y, float* newX, float* newY)
 {
 	*newX = x * 2.f / m_WindowSizeX;
 	*newY = y * 2.f / m_WindowSizeY;
+}
+
+void Renderer::CreateParticlesCloud(int numParticles)
+{
+	float centerX, centerY;
+
+	centerX = 0.f;
+	centerY = 0.f;
+	float size = 0.01f;
+	int particleCount = numParticles;
+	int vertexCount = particleCount * 6;
+	int floatCount = vertexCount * 3;
+
+	float* vertices = NULL;
+	vertices = new float[floatCount];
+
+	int index = 0;
+	for (int i = 0; i < particleCount; ++i) {
+
+		centerX = ((float)rand() / (float)RAND_MAX) * 2.f - 1.f; //-1~1 생성
+		centerY = ((float)rand() / (float)RAND_MAX) * 2.f - 1.f; //-1~1 생성
+
+		vertices[index++] = centerX - size;
+		vertices[index++] = centerY - size;
+		vertices[index++] = 0.f;
+		vertices[index++] = centerX + size;
+		vertices[index++] = centerY + size;
+		vertices[index++] = 0.f;
+		vertices[index++] = centerX - size;
+		vertices[index++] = centerY + size;
+		vertices[index++] = 0.f; //triangle1
+
+		vertices[index++] = centerX - size;
+		vertices[index++] = centerY - size;
+		vertices[index++] = 0.f;
+		vertices[index++] = centerX + size;
+		vertices[index++] = centerY - size;
+		vertices[index++] = 0.f;
+		vertices[index++] = centerX + size;
+		vertices[index++] = centerY + size;
+		vertices[index++] = 0.f; //triangle2
+	}
+
+	glGenBuffers(1, &m_ParticleCloudVBO);
+	glBindBuffer(GL_ARRAY_BUFFER, m_ParticleCloudVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * floatCount, vertices, GL_STATIC_DRAW);
+	m_ParticleCloudVertexCount = vertexCount;
+	delete[] vertices;
 }
 
 void Renderer::DrawTest()
@@ -235,8 +286,11 @@ void Renderer::DrawParticle()
 
 	int ulTime = glGetUniformLocation(shader, "u_Time");
 	glUniform1f(ulTime, m_ParticleTime);
-	m_ParticleTime += 0.01;
-	if (m_ParticleTime > 200) m_ParticleTime = 0;
+	m_ParticleTime += 0.0166; //60frame 기준
+
+	int ulPeriod = glGetUniformLocation(shader, "u_Period");
+	glUniform1f(ulPeriod, 1);
+
 
 	int attribPosition = glGetAttribLocation(shader, "a_Position");
 	glEnableVertexAttribArray(attribPosition);
@@ -244,6 +298,29 @@ void Renderer::DrawParticle()
 	glVertexAttribPointer(attribPosition, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, 0);
 
 	glDrawArrays(GL_TRIANGLES, 0, 6);
+
+	glDisableVertexAttribArray(attribPosition);
+}
+
+void Renderer::DrawParticleCloud()
+{
+	GLuint shader = m_ParticleShader;
+	glUseProgram(shader); //m_ParticleShader 코드의 id를 기준으로 해서 모든 쉐이더가 동작이 된다.
+
+	int ulTime = glGetUniformLocation(shader, "u_Time");
+	glUniform1f(ulTime, m_ParticleTime);
+	m_ParticleTime += 0.00016; //60frame 기준
+
+	int ulPeriod = glGetUniformLocation(shader, "u_Period");
+	glUniform1f(ulPeriod, 1);
+
+
+	int attribPosition = glGetAttribLocation(shader, "a_Position");
+	glEnableVertexAttribArray(attribPosition);
+	glBindBuffer(GL_ARRAY_BUFFER, m_ParticleCloudVBO);
+	glVertexAttribPointer(attribPosition, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, 0);
+
+	glDrawArrays(GL_TRIANGLES, 0, m_ParticleCloudVertexCount);
 
 	glDisableVertexAttribArray(attribPosition);
 }

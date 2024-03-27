@@ -15,7 +15,7 @@ but WITHOUT ANY WARRANTY.
 
 #include "Renderer.h"
 
-Renderer *g_Renderer = NULL;
+Renderer* g_Renderer = NULL;
 
 void RenderScene(void)
 {
@@ -25,7 +25,8 @@ void RenderScene(void)
 	// Renderer Test
 	//g_Renderer->DrawSolidRect(0, 0, 0, 4, 1, 0, 1, 1);
 	//g_Renderer->DrawTest();
-	g_Renderer->DrawParticle();
+	//g_Renderer->DrawParticle();
+	g_Renderer->DrawParticleCloud();
 
 	glutSwapBuffers();
 }
@@ -37,20 +38,20 @@ void Idle(void)
 
 void MouseInput(int button, int state, int x, int y)
 {
-	RenderScene();
+	//RenderScene();
 }
 
 void KeyInput(unsigned char key, int x, int y)
 {
-	RenderScene();
+	//RenderScene();
 }
 
 void SpecialKeyInput(int key, int x, int y)
 {
-	RenderScene();
+	//RenderScene();
 }
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
 	// Initialize GL things
 	glutInit(&argc, argv);
@@ -76,7 +77,7 @@ int main(int argc, char **argv)
 		std::cout << "Renderer could not be initialized.. \n";
 	}
 
-	glutDisplayFunc(RenderScene);
+	glutDisplayFunc(RenderScene); //뭔가 event 가 발생했을때
 	glutIdleFunc(Idle);
 	glutKeyboardFunc(KeyInput);
 	glutMouseFunc(MouseInput);
@@ -86,6 +87,6 @@ int main(int argc, char **argv)
 
 	delete g_Renderer;
 
-    return 0;
+	return 0;
 }
 
