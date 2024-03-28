@@ -56,11 +56,23 @@ void Parabola()
 	gl_Position = newPosition;
 }
 
+void Triangle()
+{
+	float newTimeX = abs(fract(u_Time / u_Period) - 0.5) * 2.0f;
+	float newTimeY = max(abs(fract((u_Time+0.5) / u_Period) - 0.5)*2-0.5,0) ;
+
+	vec4 newPosition;
+	newPosition.xyz = (c_StartPos + a_Position) + c_Velocity * newTimeX;
+	newPosition.y = (c_StartPos.y + a_Position.y) + 1* newTimeY;
+	newPosition.w = 1;
+	gl_Position = newPosition;
+}
+
 void main()
 {
-	Line();
+	//Line();
 	//Circle();
 	//Parabola();
 	//Basic();
-	//Triangle() 도 만들어보기 (세개의 꼭짓점을 const로 정해주기) 시험 나옴
+	Triangle();// 도 만들어보기 (세개의 꼭짓점을 const로 정해주기) 시험 나옴
 }
