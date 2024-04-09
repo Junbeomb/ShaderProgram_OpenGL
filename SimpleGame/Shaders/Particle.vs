@@ -8,7 +8,7 @@ uniform float u_Period = 1.0f;
 
 const vec3 c_StartPos = vec3(-1, 0, 0);
 const vec3 c_Velocity = vec3(2.0, 0, 0);
-const vec3 c_ParaVelocity = vec3(2.0, 2.0, 0);
+const vec3 c_ParaVelocity = vec3(2.0, 0.0, 0);
 const vec2 c_2DGravity = vec2(0.0, -9.8);
 const float c_PI = 3.141592;
 
@@ -46,11 +46,11 @@ void Parabola()
 	vec4 newPosition;
 
 	float transX = (a_Position.x + c_StartPos.x) 
-							+ c_ParaVelocity.x * newTime
-							+ 0.5 * c_2DGravity.x  * tt;
+							+ c_ParaVelocity.x * newTime;
+							//+ 0.5 * c_2DGravity.x  * tt;
 	float transY = (a_Position.y + c_StartPos.y) 
-							+ c_ParaVelocity.y * newTime
-							+ 0.5 * c_2DGravity.y * tt;
+							+ c_ParaVelocity.y * newTime;
+							//+ 0.5 * c_2DGravity.y * tt;
 
 	newPosition.xy = vec2(transX,transY);
 	gl_Position = newPosition;
@@ -72,7 +72,7 @@ void main()
 {
 	//Line();
 	//Circle();
-	//Parabola();
+	Parabola();
 	//Basic();
-	Triangle();// 도 만들어보기 (세개의 꼭짓점을 const로 정해주기) 시험 나옴
+	//Triangle();
 }
