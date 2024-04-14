@@ -27,11 +27,15 @@ void Renderer::Initialize(int windowSizeX, int windowSizeY)
 	m_ParticleCloudShader = CompileShaders("./Shaders/ParticleCloud.vs",
 		"./Shaders/ParticleCloud.fs");
 
+	m_FSSandboxShader = CompileShaders("./Shaders/FSSandbox.vs",
+		"./Shaders/FSSandbox.fs");
+
 	//Create VBOs
 	CreateVertexBufferObjects();
 	 
 	//CreateParticleClouds
 	CreateParticlesCloud(1000);
+
 
 	if (m_SolidRectShader > 0 && m_VBORect > 0)
 	{
@@ -76,6 +80,20 @@ void Renderer::CreateVertexBufferObjects()
 	glGenBuffers(1, &m_ParticleVBO); //갯수는 1, m_ParticleVBO
 	glBindBuffer(GL_ARRAY_BUFFER, m_ParticleVBO); //GL_ARRAY_BUFFER라는 형태로 작업,
 	glBufferData(GL_ARRAY_BUFFER, sizeof(particleVerts), particleVerts, GL_STATIC_DRAW);//sizeof() 
+
+	size = 0.5;
+	float FSSandboxVerts[] = {
+		-size, -size,0.0f,
+		size,size,0.0f,
+		-size,size,0.0f,
+		-size, -size,0.0f,
+		size, -size,0.0f,
+		size,size,0.0f, 
+	};
+
+	glGenBuffers(1, &m_FSSandboxVBO); //갯수는 1, m_ParticleVBO
+	glBindBuffer(GL_ARRAY_BUFFER, m_FSSandboxVBO); //GL_ARRAY_BUFFER라는 형태로 작업,
+	glBufferData(GL_ARRAY_BUFFER, sizeof(FSSandboxVerts), FSSandboxVerts, GL_STATIC_DRAW);//sizeof() 
 
 }
 
@@ -468,6 +486,34 @@ void Renderer::DrawParticleCloud()
 
 
 	glDrawArrays(GL_TRIANGLES, 0, m_ParticleCloudVertexCount);
+
+	glDisableVertexAttribArray(attribPosition);
+
+	glDisable(GL_BLEND);
+}
+
+void Renderer::DrawFSSandbox()
+{
+	//glEnable(GL_BLEND);
+	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	GLuint shader = m_FSSandboxShader;
+	glUseProgram(shader); //m_ParticleShader 코드의 id를 기준으로 해서 모든 쉐이더가 동작이 된다.
+	GLuint stride = sizeof(float) * 3;
+
+	int ulTime = glGetUniformLocation(shader, "u_Time");
+	glUniform1f(ulTime, m_FSSandboxTime);
+	//RenderSceneTimer를 glutTimer로 불렀기 때문에 60fps 고정임.
+	m_FSSandboxTime += 0.016; //60frame 기준
+
+
+
+	int attribPosition = glGetAttribLocation(shader, "a_Position");
+	glEnableVertexAttribArray(attribPosition);
+	glBindBuffer(GL_ARRAY_BUFFER, m_FSSandboxVBO);
+	glVertexAttribPointer(attribPosition, 3, GL_FLOAT, GL_FALSE, stride, 0);
+
+
+	glDrawArrays(GL_TRIANGLES, 0, 6);
 
 	glDisableVertexAttribArray(attribPosition);
 
