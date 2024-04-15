@@ -502,7 +502,6 @@ void Renderer::DrawFSSandbox()
 
 	int ulTime = glGetUniformLocation(shader, "u_Time");
 	glUniform1f(ulTime, m_FSSandboxTime);
-	//RenderSceneTimer를 glutTimer로 불렀기 때문에 60fps 고정임.
 	m_FSSandboxTime += 0.016; //60frame 기준
 
 
