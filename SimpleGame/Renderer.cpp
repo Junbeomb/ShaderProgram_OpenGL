@@ -1,11 +1,11 @@
 #include "stdafx.h"
 #include "Renderer.h"
+#include "LoadPng.h"
 
 Renderer::Renderer(int windowSizeX, int windowSizeY)
 {
 	Initialize(windowSizeX, windowSizeY);
 }
-
 
 Renderer::~Renderer()
 {
@@ -33,6 +33,9 @@ void Renderer::Initialize(int windowSizeX, int windowSizeY)
 	m_GridMeshShader = CompileShaders("./Shaders/GridMesh.vs",
 		"./Shaders/GridMesh.fs");
 
+	m_TextureSandboxShader = CompileShaders("./Shaders/TextureSandbox.vs",
+		"./Shaders/TextureSandbox.fs");
+
 	//Create VBOs
 	CreateVertexBufferObjects();
 	 
@@ -40,6 +43,8 @@ void Renderer::Initialize(int windowSizeX, int windowSizeY)
 	CreateParticlesCloud(1000);
 
 	CreateGridMesh(32,32);
+
+	m_RGBTexture = CreatePngTexture("./rgb.png", GL_NEAREST);
 
 	if (m_SolidRectShader > 0 && m_VBORect > 0)
 	{
@@ -50,6 +55,22 @@ void Renderer::Initialize(int windowSizeX, int windowSizeY)
 bool Renderer::IsInitialized()
 {
 	return m_Initialized;
+}
+
+GLuint Renderer::CreatePngTexture(char* filePath, GLuint samplingMethod)
+{
+	std::vector<unsigned char> image;
+	unsigned width, height;
+	unsigned error = lodepng::decode(image, width, height, filePath);
+	GLuint temp;
+	glGenTextures(1, &temp);
+	glBindTexture(GL_TEXTURE_2D, temp);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA,
+		GL_UNSIGNED_BYTE, &image[0]);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, samplingMethod);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, samplingMethod);
+
+	return temp;
 }
 
 void Renderer::CreateVertexBufferObjects()
@@ -98,6 +119,20 @@ void Renderer::CreateVertexBufferObjects()
 	glGenBuffers(1, &m_FSSandboxVBO); //갯수는 1, m_ParticleVBO
 	glBindBuffer(GL_ARRAY_BUFFER, m_FSSandboxVBO); //GL_ARRAY_BUFFER라는 형태로 작업,
 	glBufferData(GL_ARRAY_BUFFER, sizeof(FSSandboxVerts), FSSandboxVerts, GL_STATIC_DRAW);//sizeof() 
+
+	size = 0.5;
+	float TextureSandboxVerts[] = {
+		-size, -size,0,0,1,
+		size,size,0,1,0,
+		-size,size,0,0,0,
+		-size, -size,0,0,1,
+		size, -size,0,1,1,
+		size,size,0,1,0
+	};
+
+	glGenBuffers(1, &m_TextureSandboxVBO); //갯수는 1, m_ParticleVBO
+	glBindBuffer(GL_ARRAY_BUFFER, m_TextureSandboxVBO); //GL_ARRAY_BUFFER라는 형태로 작업,
+	glBufferData(GL_ARRAY_BUFFER, sizeof(TextureSandboxVerts), TextureSandboxVerts, GL_STATIC_DRAW);//sizeof() 
 
 }
 
@@ -389,7 +424,6 @@ void Renderer::CreateParticlesCloud(int numParticles)
 	delete[] vertices;
 }
 
-
 void Renderer::CreateGridMesh(int x, int y){
 	float basePosX = -0.5f;
 	float basePosY = -0.5f;
@@ -468,7 +502,6 @@ void Renderer::CreateGridMesh(int x, int y){
 	glBindBuffer(GL_ARRAY_BUFFER, m_GridMeshVBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * (pointCountX - 1) * (pointCountY - 1) * 2 * 3 * 3, vertices, GL_STATIC_DRAW);
 }
-
 
 void Renderer::DrawTest()
 {
@@ -620,6 +653,37 @@ void Renderer::DrawGridMesh()
 	m_GridMeshTime += 0.016;
 
 	glDrawArrays(GL_LINE_STRIP, 0, m_GridMeshVertexCount);
+
+	glDisableVertexAttribArray(attribPosition);
+}
+
+void Renderer::DrawTextureSandbox()
+{
+	//Program select
+	GLuint shader = m_TextureSandboxShader;
+	glUseProgram(shader);
+	float stride = sizeof(float) * 5;
+
+	int attribPosition = glGetAttribLocation(shader, "a_Position");
+	glEnableVertexAttribArray(attribPosition);
+	glBindBuffer(GL_ARRAY_BUFFER, m_TextureSandboxVBO);
+	glVertexAttribPointer(attribPosition, 3, GL_FLOAT, GL_FALSE, stride, 0);
+
+	int attribTexture = glGetAttribLocation(shader, "a_Texture");
+	glEnableVertexAttribArray(attribTexture);
+	glBindBuffer(GL_ARRAY_BUFFER, m_TextureSandboxVBO);
+	glVertexAttribPointer(attribTexture, 2, GL_FLOAT, GL_FALSE, stride, (GLvoid*)(sizeof(float)*3));
+
+	GLuint ul_Time = glGetUniformLocation(shader, "u_Time");
+	glUniform1f(ul_Time, m_TextureSandboxTime);
+	m_TextureSandboxTime += 0.016;
+
+	GLuint ul_Texture = glGetUniformLocation(shader, "u_Texture");
+	glUniform1i(ul_Texture, 0);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, m_RGBTexture);
+
+	glDrawArrays(GL_TRIANGLES, 0, 6);
 
 	glDisableVertexAttribArray(attribPosition);
 }

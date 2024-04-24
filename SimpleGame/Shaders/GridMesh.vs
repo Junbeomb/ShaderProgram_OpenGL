@@ -28,8 +28,8 @@ void SphereMapping()
 {
 	float r = 0.5;
 	float scale = 5;
-	float newX = r * sin(a_Position.y*scale) * cos(a_Position.x*scale);
-	float newY = r * sin(a_Position.y*scale) * sin(a_Position.x*scale);
+	float newX = r * sin(a_Position.y*scale) * cos(a_Position.x * scale);
+	float newY = r * sin(a_Position.y*scale) * sin(a_Position.x * scale);
 	float newZ = r * cos(a_Position.y*scale);
 	vec4 newPosition = vec4(newX,newY,newZ,1);
 
