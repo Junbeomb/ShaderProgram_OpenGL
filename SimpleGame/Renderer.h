@@ -20,6 +20,7 @@ public:
 	void DrawParticle();
 	void DrawParticleCloud();
 	void DrawFSSandbox();
+	void DrawGridMesh();
 
 private:
 	void Initialize(int windowSizeX, int windowSizeY);
@@ -30,6 +31,7 @@ private:
 	void GetGLPosition(float x, float y, float* newX, float* newY);
 
 	void CreateParticlesCloud(int numParticles);
+	void CreateGridMesh(int x,int y);
 
 	bool m_Initialized = false;
 
@@ -53,6 +55,11 @@ private:
 	GLuint m_FSSandboxShader = 0;
 	GLuint m_FSSandboxVBO = 0;
 	float m_FSSandboxTime = 0;
+
+	GLuint m_GridMeshShader = 0;
+	GLuint m_GridMeshVBO = 0;
+	GLuint m_GridMeshVertexCount = 0;
+	float m_GridMeshTime = 0;
 
 };
 

@@ -41,7 +41,8 @@ void RenderSceneTimer(int value)
 	//g_Renderer->DrawTest();
 	//g_Renderer->DrawParticle();
 	//g_Renderer->DrawParticleCloud();
-	g_Renderer->DrawFSSandbox();
+	//g_Renderer->DrawFSSandbox();
+	g_Renderer->DrawGridMesh();
 	glutSwapBuffers();
 	glutTimerFunc(16, RenderSceneTimer, 1);
 }
@@ -66,8 +67,7 @@ void SpecialKeyInput(int key, int x, int y)
 	//RenderScene();
 }
 
-int main(int argc, char** argv)
-{
+int main(int argc, char** argv){
 	// Initialize GL things
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);
