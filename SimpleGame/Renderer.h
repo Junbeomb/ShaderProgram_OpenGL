@@ -69,5 +69,8 @@ private:
 	float m_TextureSandboxTime = 0;
 	GLuint m_RGBTexture= 0;
 
+	GLuint m_NumberTexture[10];
+	GLuint m_NumbersTexture;
+
 };
 
