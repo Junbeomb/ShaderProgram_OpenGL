@@ -44,10 +44,10 @@ void Circle()
 
 void Circles()
 {
-	float circleCount = 5; //0 ~ 1
+	float circleCount = 2; //0 ~ 1
 	vec2 circleCenter = vec2(0.5,0.5);
 	float dist = distance(v_Color.rg, circleCenter);
-	float Inputs = circleCount * c_PI * 4 * dist + u_Time * 2;
+	float Inputs = circleCount * c_PI * 4 * dist ;//+ u_Time * 2
 	float sinValue = pow(sin(Inputs),16);
 	FragColor = vec4(sinValue);
 }
@@ -75,6 +75,6 @@ void SinGraph()
 
 void main()
 {
-	//Circles();
-	SinGraph();
+	Circles();
+	//SinGraph();
 }

@@ -40,7 +40,7 @@ void Renderer::Initialize(int windowSizeX, int windowSizeY)
 	CreateVertexBufferObjects();
 	 
 	//CreateParticleClouds
-	CreateParticlesCloud(1000);
+	CreateParticlesCloud(10000);
 
 	CreateGridMesh(32,32);
 
@@ -320,9 +320,9 @@ void Renderer::CreateParticlesCloud(int numParticles)
 		vx = 0.f;//* (((float)rand() / (float)RAND_MAX) * 2.f - 1.f) * velocityScale;
 		vy = -0.01f;// * (((float)rand() / (float)RAND_MAX) * 2.f - 1.f) * velocityScale;
 		vz = (((float)rand() / (float)RAND_MAX) * 2.f - 1.f) * velocityScale;
-		startTime = 1 * ((float)rand() / (float)RAND_MAX);
+		startTime = 10.f * ((float)rand() / (float)RAND_MAX);
 		lifeTime = 1.f * ((float)rand() / (float)RAND_MAX) + 1.f;
-		amp = (((float)rand() / (float)RAND_MAX)-0.5)*2;
+		amp = (((float)rand() / (float)RAND_MAX)-0.5f)*2.f;
 		period = ((float)rand() / (float)RAND_MAX);
 		value = ((float)rand() / (float)RAND_MAX);
 		r = ((float)rand() / (float)RAND_MAX);
@@ -568,7 +568,7 @@ void Renderer::DrawParticleCloud()
 	glUniform1f(ulPeriod, 2.0);
 
 	int ulAcc = glGetUniformLocation(shader, "u_Acc");
-	glUniform2f(ulAcc, sin(m_ParticleTime), sin(m_ParticleTime));
+	glUniform2f(ulAcc, cos(m_ParticleTime), sin(m_ParticleTime));
 
 
 

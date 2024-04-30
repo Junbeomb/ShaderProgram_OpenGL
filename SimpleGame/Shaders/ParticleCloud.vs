@@ -179,12 +179,11 @@ void HeartShapeCycle()
 
 		
 		newPosition.xy = newPosition.xy + a_Velocity.xy *t + 0.5 * c_2DGravity * tt;
-		newPosition.xy += sin(t * c_PI * period) * (amp * t * 0.1)*newDir;
+		newPosition.xy = newPosition.xy + sin(t * c_PI * period) * amp * ( t * 0.1 )* newDir;
 		v_Color = vec4(a_Color.rgb,particleAlpha);
 	}
 	else{
-		newPosition.x = 100000;
-		v_Color = a_Color;
+		newPosition.x = 10;
 	}
 
 	gl_Position=newPosition;
@@ -211,6 +210,29 @@ void HeartShape()
 	v_Color = a_Color;
 }
 
+void Wave()
+{
+	vec4 newPosition = vec4(a_Position,1);
+	float t = u_Time-int(a_StartTime);
+
+	t =fract(t/10);
+
+	if(t>0){
+		float value = a_StartTime * 2.0 * c_PI;
+		float x = sin(value);
+		float y = cos(value);
+		newPosition.xy += vec2(x,y) * t;
+	}
+	else{
+		newPosition.x = 1000;
+	}
+
+	gl_Position=newPosition;
+
+	float dist = distance(vec2(0,0),newPosition.xy);
+	v_Color = vec4(dist,dist,dist,1);
+}
+
 void main()
 {
 	//Line();
@@ -220,7 +242,8 @@ void main()
 	//Velocity();
 	//CircleShape();
 	//CircleShapeCycle();
-	HeartShapeCycle();
+	//HeartShapeCycle();
 
 	//HeartShape();
+	Wave();
 }

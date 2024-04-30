@@ -106,5 +106,5 @@ void P9()
 
 void main()
 {
-	P9();
+	P5();
 }
