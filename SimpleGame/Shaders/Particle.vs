@@ -58,12 +58,11 @@ void Parabola()
 
 void Triangle()
 {
-	float newTimeX = abs(fract(u_Time / u_Period) - 0.5) * 2.0f;
-	float newTimeY = max(abs(fract((u_Time+0.5) / u_Period) - 0.5)*2-0.5,0) ;
-
+	float newTimeX = abs(fract((u_Time-0.5) / u_Period) - 0.5);
+	float newTimeY = 0.5-abs(max(fract(u_Time/u_Period)-0.5,0) * 2 -0.5);
 	vec4 newPosition;
-	newPosition.xyz = (c_StartPos + a_Position) + c_Velocity * newTimeX;
-	newPosition.y = (c_StartPos.y + a_Position.y) + 1* newTimeY;
+	newPosition.x = (c_StartPos.x + a_Position.x) + 2 * newTimeX;
+	newPosition.y = (c_StartPos.y + a_Position.y) + 2 * newTimeY;
 	newPosition.w = 1;
 	gl_Position = newPosition;
 }
@@ -72,7 +71,7 @@ void main()
 {
 	//Line();
 	//Circle();
-	Parabola();
+	//Parabola();
 	//Basic();
-	//Triangle();
+	Triangle();
 }

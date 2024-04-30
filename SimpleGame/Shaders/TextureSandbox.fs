@@ -1,6 +1,6 @@
 #version 330
 
-layout(location=0) out vec4 FragColor;
+layout(location = 0) out vec4 FragColor;
 
 uniform sampler2D u_Texture;
 uniform sampler2D u_NumberTexture[10];
@@ -13,15 +13,15 @@ void P1()
 {
 	float tx = v_TexPos.x;
 	float ty = v_TexPos.y;
-	vec2 newTexPos = vec2(tx,ty);
+	vec2 newTexPos = vec2(tx, ty);
 	FragColor = texture(u_Texture, newTexPos);
 }
 
 void P2()
 {
 	float tx = v_TexPos.x;
-	float ty = 1-fract(abs(v_TexPos.y-0.5) * 2);
-	vec2 newTexPos = vec2(tx,ty);
+	float ty = 1 - fract(abs(v_TexPos.y - 0.5) * 2);
+	vec2 newTexPos = vec2(tx, ty);
 	FragColor = texture(u_Texture, newTexPos);
 }
 
@@ -63,7 +63,7 @@ void P6() //위에는 0.5 더하고 아래는 그대로
 
 //왼쪽은 그대로 오른쪽은 0.5 더하기 (어느 방향으로 늘어나냐, 어느 방향으로 움직이냐에 따라서 x를 건드릴지 y를 건드릴지가 결정됨.)
 //x축의 방향으로 y 값의 정도에 따라서 달라진다하면 float tx 를 바꿔야함.
-void P7() 
+void P7()
 {
 	float padding = 0.5 + u_Time;
 	float countX = 2;
